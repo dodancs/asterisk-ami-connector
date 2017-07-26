@@ -1,34 +1,48 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = require("events");
-const local_asterisk_ami_event_utils_1 = require("local-asterisk-ami-event-utils");
-const local_asterisk_ami_events_stream_1 = require("local-asterisk-ami-events-stream");
+/**
+ * Created by Alex Voronyansky <belirafon@gmail.com>
+ * Date: 26.04.2016
+ * Time: 13:47
+ */
+import Socket = NodeJS.Socket;
+import {EventEmitter} from "events";
+import amiUtils from "local-asterisk-ami-event-utils";
+import AmiEventsStream from "local-asterisk-ami-events-stream";
+
 /**
  * Ami Connection
  */
-class AmiConnection extends events_1.EventEmitter {
-    constructor(socket) {
+export default class AmiConnection extends EventEmitter {
+    private _socket: any;
+    private _isConnected: boolean;
+    private _amiDataStream: AmiEventsStream;
+    private _lastWroteData: any;
+
+    constructor(socket: Socket) {
         super();
+
         Object.assign(this, {
-            _amiDataStream: new local_asterisk_ami_events_stream_1.default(),
+            _amiDataStream: new AmiEventsStream(),
             _isConnected: true,
             _lastWroteData: null,
             _socket: socket
         });
+
         this._socket
             .on("error", (error) => this.emit("error", error))
             .on("close", () => this.close());
+
         this._socket.pipe(this._amiDataStream)
             .on("amiEvent", (event) => this.emit("event", event))
             .on("amiResponse", (response) => this.emit("response", response))
             .on("data", (chunk) => this.emit("data", chunk))
             .on("error", (error) => this.emit("error", error));
     }
+
     /**
      *
      * @returns {AmiConnection}
      */
-    close() {
+    public close() {
         this._isConnected = false;
         this.emit("close");
         if (this._socket) {
@@ -41,16 +55,19 @@ class AmiConnection extends events_1.EventEmitter {
         }
         return this;
     }
+
     /**
      *
      * @param message
      */
-    write(message) {
+    public write(message) {
         const messageStr = typeof message === "string" ?
-            local_asterisk_ami_event_utils_1.default.fromString(message) : local_asterisk_ami_event_utils_1.default.fromObject(message);
+            amiUtils.fromString(message) : amiUtils.fromObject(message);
+
         this._lastWroteData = message;
         return this._socket.write(messageStr);
     }
+
     /**
      *
      * @returns {boolean}
@@ -58,6 +75,7 @@ class AmiConnection extends events_1.EventEmitter {
     get isConnected() {
         return this._isConnected;
     }
+
     /**
      *
      * @returns {null}
@@ -65,6 +83,7 @@ class AmiConnection extends events_1.EventEmitter {
     get lastEvent() {
         return this._amiDataStream ? this._amiDataStream.lastEvent : null;
     }
+
     /**
      *
      * @returns {null}
@@ -72,6 +91,7 @@ class AmiConnection extends events_1.EventEmitter {
     get lastResponse() {
         return this._amiDataStream ? this._amiDataStream.lastResponse : null;
     }
+
     /**
      *
      * @returns {*}
@@ -80,5 +100,3 @@ class AmiConnection extends events_1.EventEmitter {
         return this._lastWroteData;
     }
 }
-exports.default = AmiConnection;
-//# sourceMappingURL=AmiConnection.js.map
