@@ -19,7 +19,7 @@ const serverOptions = {
 };
 const socketOptions = {
     host: "127.0.0.1",
-    port: 5038
+    port: 50380
 };
 
 process.on("unhandledRejection", (reason, p) => {
@@ -157,7 +157,7 @@ describe("Ami connector Internal functioanlity", () => {
             connector.connect("test", "test", socketOptions)
                 .catch((error) => {
                     assert.ok(error instanceof Error);
-                    assert.equal("connect ECONNREFUSED 127.0.0.1:5038", error.message);
+                    assert.equal("connect ECONNREFUSED 127.0.0.1:50380", error.message);
                     done();
                 });
             setTimeout(() => {

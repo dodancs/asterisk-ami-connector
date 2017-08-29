@@ -60,12 +60,12 @@ export default class AmiConnection extends EventEmitter {
      *
      * @param message
      */
-    public write(message) {
+    public write(message, callbackErr?: (error?: Error) => void) {
         const messageStr = typeof message === "string" ?
             amiUtils.fromString(message) : amiUtils.fromObject(message);
 
         this._lastWroteData = message;
-        return this._socket.write(messageStr);
+        return this._socket.write(messageStr, callbackErr);
     }
 
     /**
