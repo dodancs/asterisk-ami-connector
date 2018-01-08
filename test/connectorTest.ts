@@ -3,7 +3,7 @@
  * Date: 05.05.2016
  * Time: 11:26
  */
-import AmiTestServer from "local-asterisk-ami-test-server";
+import AmiTestServer from "dfi-asterisk-ami-test-server";
 import * as assert from "assert";
 import AmiConnection from "../lib/AmiConnection";
 

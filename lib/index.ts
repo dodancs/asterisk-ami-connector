@@ -8,8 +8,8 @@ import co = require("co");
 import net = require("net");
 import debug  = require("debug");
 import Socket = NodeJS.Socket;
-import amiUtils from "local-asterisk-ami-event-utils";
-import AmiEventsStream from "local-asterisk-ami-events-stream";
+import amiUtils from "dfi-asterisk-ami-event-utils";
+import * as AmiEventsStream from "asterisk-ami-events-stream";
 import AmiConnection from "./AmiConnection";
 import AmiAuthError from "./errors/AmiAuthError";
 import {IAmiConnectionOptions, TAmiConnection, TAmiConnector} from "./interfaces";
@@ -112,7 +112,7 @@ function sleep(delay) {
     return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
-const connector: TAmiConnector = (options): { connect: TAmiConnection } => {
+const connector: TAmiConnector = (options?): { connect: TAmiConnection } => {
     options = {
         attemptsDelay: 1000,
         maxAttemptsCount: null,

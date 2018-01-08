@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Date: 05.05.2016
  * Time: 11:26
  */
-const local_asterisk_ami_test_server_1 = require("local-asterisk-ami-test-server");
+const dfi_asterisk_ami_test_server_1 = require("dfi-asterisk-ami-test-server");
 const assert = require("assert");
 const AmiConnection_1 = require("../lib/AmiConnection");
 const index_1 = require("../lib/index");
@@ -37,7 +37,7 @@ describe("Ami connector Internal functioanlity", () => {
     };
     before(onBefore);
     afterEach((done) => {
-        if (server instanceof local_asterisk_ami_test_server_1.default) {
+        if (server instanceof dfi_asterisk_ami_test_server_1.default) {
             server.close();
             server.removeAllListeners();
             server = null;
@@ -48,7 +48,7 @@ describe("Ami connector Internal functioanlity", () => {
     describe("Regular connection functionality", () => {
         beforeEach((done) => {
             connector = index_1.default(connectorOptions);
-            server = new local_asterisk_ami_test_server_1.default(serverOptions);
+            server = new dfi_asterisk_ami_test_server_1.default(serverOptions);
             server.listen({ port: socketOptions.port })
                 .then(() => {
                 done();
@@ -87,7 +87,7 @@ describe("Ami connector Internal functioanlity", () => {
     });
     describe("Reconnection functioanlity", () => {
         beforeEach(() => {
-            server = new local_asterisk_ami_test_server_1.default(serverOptions);
+            server = new dfi_asterisk_ami_test_server_1.default(serverOptions);
         });
         it("Reconnection with correct credentials", (done) => {
             connector = index_1.default({
@@ -152,7 +152,7 @@ describe("Ami connector Internal functioanlity", () => {
         let connection = null;
         beforeEach((done) => {
             connector = index_1.default(connectorOptions);
-            server = new local_asterisk_ami_test_server_1.default(serverOptions);
+            server = new dfi_asterisk_ami_test_server_1.default(serverOptions);
             server.listen({ port: socketOptions.port })
                 .then(() => {
                 connector.connect("test", "test", socketOptions)

@@ -4,9 +4,9 @@
  * Time: 13:47
  */
 import Socket = NodeJS.Socket;
+import * as AmiEventsStream from "asterisk-ami-events-stream";
+import amiUtils from "dfi-asterisk-ami-event-utils";
 import {EventEmitter} from "events";
-import amiUtils from "local-asterisk-ami-event-utils";
-import AmiEventsStream from "local-asterisk-ami-events-stream";
 
 /**
  * Ami Connection
