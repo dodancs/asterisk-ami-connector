@@ -6,7 +6,7 @@
 
 import connector from "../lib/index";
 
-connector().connect("login", "password", {host: "127.0.0.1", port: 5038})
+connector({}).connect("login", "password", {host: "127.0.0.1", port: 5038})
     .then((amiConnection) => {
         amiConnection
             .on("event", (event) => {
