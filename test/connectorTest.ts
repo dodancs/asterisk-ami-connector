@@ -3,11 +3,12 @@
  * Date: 05.05.2016
  * Time: 11:26
  */
-import AmiTestServer from "dfi-asterisk-ami-test-server";
+import { AmiTestServer } from "@dodancs/asterisk-ami-test-server";
 import * as assert from "assert";
-import AmiConnection from "../lib/AmiConnection";
+import AmiConnection from "../src/AmiConnection";
 
-import connectorFactory from "../lib/index";
+import connectorFactory from "../src/index";
+import { IAmiConnectorReturn } from "../src/interfaces";
 
 const CRLF = "\r\n";
 
@@ -27,20 +28,16 @@ process.on("unhandledRejection", (reason, p) => {
     // application specific logging, throwing an error, or other logic here
 });
 
-describe("Ami connector Internal functioanlity", () => {
+describe("Ami connector Internal functioanlity", function () {
+    this.timeout(3000);
 
-    function onBefore() {
-        this.timeout(3000);
-    }
-
-    let server = null;
-    let connector = null;
+    let server: AmiTestServer | null;
+    let connector: IAmiConnectorReturn;
     const connectorOptions = {
         attemptsDelay: 1000,
         maxAttemptsCount: null,
         reconnect: false
     };
-    before(onBefore);
 
     afterEach((done) => {
         if (server instanceof AmiTestServer) {
@@ -48,7 +45,6 @@ describe("Ami connector Internal functioanlity", () => {
             server.removeAllListeners();
             server = null;
         }
-        connector = null;
         done();
     });
 
@@ -57,7 +53,7 @@ describe("Ami connector Internal functioanlity", () => {
         beforeEach((done) => {
             connector = connectorFactory(connectorOptions);
             server = new AmiTestServer(serverOptions);
-            server.listen({port: socketOptions.port})
+            server.listen(socketOptions.port)
                 .then(() => {
                     done();
                 })
@@ -115,7 +111,7 @@ describe("Ami connector Internal functioanlity", () => {
                     done(error);
                 });
             setTimeout(() => {
-                server.listen({port: socketOptions.port});
+                server?.listen(socketOptions.port);
             }, 1500);
         }).timeout(3000);
 
@@ -130,7 +126,7 @@ describe("Ami connector Internal functioanlity", () => {
                     done();
                 });
             setTimeout(() => {
-                server.listen({port: socketOptions.port});
+                server?.listen(socketOptions.port);
             }, 1500);
         }).timeout(3000);
 
@@ -146,7 +142,7 @@ describe("Ami connector Internal functioanlity", () => {
                     done();
                 });
             setTimeout(() => {
-                server.listen({port: socketOptions.port});
+                server?.listen(socketOptions.port);
             }, 1500);
         });
 
@@ -161,18 +157,18 @@ describe("Ami connector Internal functioanlity", () => {
                     done();
                 });
             setTimeout(() => {
-                server.listen({port: socketOptions.port});
+                server?.listen(socketOptions.port);
             }, 1500);
         });
     });
 
     describe("AmiConnection internal functionality", () => {
-        let connection = null;
+        let connection: AmiConnection;
 
         beforeEach((done) => {
             connector = connectorFactory(connectorOptions);
             server = new AmiTestServer(serverOptions);
-            server.listen({port: socketOptions.port})
+            server.listen(socketOptions.port)
                 .then(() => {
                     connector.connect("test", "test", socketOptions)
                         .then((amiConnection) => {
@@ -192,7 +188,6 @@ describe("Ami connector Internal functioanlity", () => {
             if (connection instanceof AmiConnection) {
                 connection.close();
                 connection.removeAllListeners();
-                connection = null;
             }
         });
 
@@ -202,11 +197,11 @@ describe("Ami connector Internal functioanlity", () => {
                     assert.deepEqual(connection.lastResponse, response);
                     done();
                 })
-                .write({Action: "Ping"});
+                .write({ Action: "Ping" });
         });
 
         it("Last event", (done) => {
-            server.broadcast([
+            server?.broadcast([
                 "Event: Test",
                 "Value: AmiConnectionTest"
             ].join(CRLF) + CRLF.repeat(2));
@@ -218,7 +213,7 @@ describe("Ami connector Internal functioanlity", () => {
         });
 
         it("Last wrote data", () => {
-            const dataPackage = {Action: "Ping"};
+            const dataPackage = { Action: "Ping" };
             connection.write(dataPackage);
             assert.deepEqual(connection.lastWroteData, dataPackage);
         });

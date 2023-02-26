@@ -4,35 +4,30 @@
  * Time: 13:47
  */
 
-import co = require("co");
-import net = require("net");
-import debug  = require("debug");
-import Socket = NodeJS.Socket;
-import amiUtils from "dfi-asterisk-ami-event-utils";
-import * as AmiEventsStream from "asterisk-ami-events-stream";
+import * as net from "net";
+import * as co from "co";
+import amiUtils from "@dodancs/asterisk-ami-event-utils";
+import { AmiEvent, AmiEventsStream } from "@dodancs/asterisk-ami-events-stream";
 import AmiConnection from "./AmiConnection";
 import AmiAuthError from "./errors/AmiAuthError";
-import {IAmiConnectionOptions, TAmiConnection, TAmiConnector} from "./interfaces";
-
-const debugLog = debug("amiConnector");
-const errorLog = debug("amiConnector:error");
+import { IAmiConnectionOptions, TAmiConnection, TAmiConnector } from "./interfaces";
 
 function createAmiConnection(login: string, secret: string, connectionOptions: IAmiConnectionOptions): Promise<AmiConnection> {
     return new Promise((resolve, reject) => {
 
         const amiDataStream: AmiEventsStream = new AmiEventsStream();
-        const authCommand = {
+        const authCommand: AmiEvent = {
             Action: "login",
             ActionID: `__auth_${Date.now()}__`,
             Secret: secret,
             Username: login
         };
-        let amiSocket: Socket = null;
+        let amiSocket: net.Socket;
 
-        debugLog("connecting to asterisk ami...");
+        console.debug("connecting to asterisk ami...");
 
         amiSocket = net.connect(connectionOptions, () => {
-            debugLog("connection established");
+            console.debug("connection established");
 
             amiSocket.pipe(amiDataStream)
                 .once("error", reject)
@@ -46,7 +41,7 @@ function createAmiConnection(login: string, secret: string, connectionOptions: I
                         return;
                     }
 
-                    debugLog("authontificated successfull");
+                    console.debug("authontificated successfull");
                     amiSocket
                         .removeAllListeners("error")
                         .removeAllListeners("close")
@@ -58,9 +53,9 @@ function createAmiConnection(login: string, secret: string, connectionOptions: I
                         .removeAllListeners("amiResponse");
 
                     resolve(new AmiConnection(amiSocket));
-                    debugLog("asterisk's ami connection ready to work");
+                    console.debug("asterisk's ami connection ready to work");
                 });
-            debugLog(`authontification [username:${authCommand.Username}]...`);
+            console.debug(`authontification [username:${authCommand.Username}]...`);
             amiSocket.write(amiUtils.fromObject(authCommand));
         })
             .once("error", reject)
@@ -74,12 +69,12 @@ function createAmiConnection(login: string, secret: string, connectionOptions: I
  * @param attemptsDelay
  * @returns {Function}
  */
-function wrapper(maxAttemptsCount?: number, attemptsDelay?: number): TAmiConnection {
+function wrapper(maxAttemptsCount: number | null | undefined, attemptsDelay?: number): TAmiConnection {
     return (login: string, secret: string, connectionOptions: IAmiConnectionOptions): Promise<AmiConnection> => {
         return co(function* () {
             let currAttemptIndex = 0;
 
-            while (maxAttemptsCount === null || ++currAttemptIndex <= maxAttemptsCount) {
+            while (maxAttemptsCount === null || ++currAttemptIndex <= (maxAttemptsCount || 0)) {
                 try {
                     return yield createAmiConnection(login, secret, connectionOptions);
 
@@ -88,14 +83,16 @@ function wrapper(maxAttemptsCount?: number, attemptsDelay?: number): TAmiConnect
                         throw error;
                     }
 
-                    errorLog(error.message);
+                    if (error instanceof Error) {
+                        console.error(error.message);
+                    }
                     yield sleep(attemptsDelay);
                 }
 
                 if (maxAttemptsCount === null) {
-                    debugLog(`attempt of reconnecting...`);
+                    console.debug(`attempt of reconnecting...`);
                 } else {
-                    debugLog(`attempt [${currAttemptIndex} of ${maxAttemptsCount}] of reconnecting...`);
+                    console.debug(`attempt [${currAttemptIndex} of ${maxAttemptsCount}] of reconnecting...`);
                 }
             }
             throw new Error("Reconnection error after max count attempts.");
@@ -108,11 +105,11 @@ function wrapper(maxAttemptsCount?: number, attemptsDelay?: number): TAmiConnect
  * @param delay
  * @returns {Promise}
  */
-function sleep(delay) {
+function sleep(delay?: number) {
     return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
-const connector: TAmiConnector = (options?): { connect: TAmiConnection } => {
+const connector: TAmiConnector = (options?): { connect: TAmiConnection; } => {
     options = {
         attemptsDelay: 1000,
         maxAttemptsCount: null,

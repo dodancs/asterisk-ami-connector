@@ -3,10 +3,10 @@
  * Date: 26.04.2016
  * Time: 13:47
  */
-import Socket = NodeJS.Socket;
-import * as AmiEventsStream from "asterisk-ami-events-stream";
-import amiUtils from "dfi-asterisk-ami-event-utils";
-import {EventEmitter} from "events";
+import * as net from 'net';
+import { AmiEvent, AmiEventsStream } from "@dodancs/asterisk-ami-events-stream";
+import amiUtils from "@dodancs/asterisk-ami-event-utils";
+import { EventEmitter } from "events";
 
 /**
  * Ami Connection
@@ -17,25 +17,23 @@ export default class AmiConnection extends EventEmitter {
     private _amiDataStream: AmiEventsStream;
     private _lastWroteData: any;
 
-    constructor(socket: Socket) {
+    constructor(socket: net.Socket) {
         super();
 
-        Object.assign(this, {
-            _amiDataStream: new AmiEventsStream(),
-            _isConnected: true,
-            _lastWroteData: null,
-            _socket: socket
-        });
+        this._amiDataStream = new AmiEventsStream(),
+            this._isConnected = true,
+            this._lastWroteData = null,
+            this._socket = socket;
 
         this._socket
-            .on("error", (error) => this.emit("error", error))
+            .on("error", (error: Error | string) => this.emit("error", error))
             .on("close", () => this.close());
 
         this._socket.pipe(this._amiDataStream)
-            .on("amiEvent", (event) => this.emit("event", event))
-            .on("amiResponse", (response) => this.emit("response", response))
-            .on("data", (chunk) => this.emit("data", chunk))
-            .on("error", (error) => this.emit("error", error));
+            .on("amiEvent", (event: AmiEvent) => this.emit("event", event))
+            .on("amiResponse", (response: AmiEvent) => this.emit("response", response))
+            .on("data", (chunk: Buffer) => this.emit("data", chunk))
+            .on("error", (error: Error | string) => this.emit("error", error));
     }
 
     /**
@@ -60,7 +58,7 @@ export default class AmiConnection extends EventEmitter {
      *
      * @param message
      */
-    public write(message, callbackErr?: (error?: Error) => void) {
+    public write(message: AmiEvent | string, callbackErr?: (error?: Error) => void) {
         const messageStr = typeof message === "string" ?
             amiUtils.fromString(message) : amiUtils.fromObject(message);
 
