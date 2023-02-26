@@ -1,16 +1,16 @@
-# Asterisk AMI Connector for NodeJS (ES2015) 
+# Asterisk AMI Connector for NodeJS \w TypeScript support
 
-[![Build Status](https://travis-ci.org/BelirafoN/asterisk-ami-connector.svg?branch=master)](https://travis-ci.org/BelirafoN/asterisk-ami-connector)
-[![Coverage Status](https://coveralls.io/repos/github/BelirafoN/asterisk-ami-connector/badge.svg?branch=master)](https://coveralls.io/github/BelirafoN/asterisk-ami-connector?branch=master)
-[![Code Climate](https://codeclimate.com/github/BelirafoN/asterisk-ami-connector/badges/gpa.svg)](https://codeclimate.com/github/BelirafoN/asterisk-ami-connector)
-[![npm version](https://badge.fury.io/js/asterisk-ami-connector.svg)](https://badge.fury.io/js/asterisk-ami-connector)
+[![Coverage Status](https://coveralls.io/repos/dodancs/asterisk-ami-connector/badge.svg)](https://coveralls.io/github/dodancs/asterisk-ami-connector)
+[![npm version](https://badge.fury.io/js/@dodancs%2Fasterisk-ami-connector.svg)](https://badge.fury.io/js/@dodancs%2Fasterisk-ami-connector)
+
+Fork of [asterisk-ami-connector](https://github.com/BelirafoN/asterisk-ami-connector) and [dafik/asterisk-ami-connector](https://github.com/dafik/asterisk-ami-connector)
 
 This library is a part of **[Asterisk's AMI Client](https://www.npmjs.com/package/asterisk-ami-client)** library.
 
 ## Install 
 
 ```bash 
-$ npm i asterisk-ami-connector
+$ npm i @dodancs/asterisk-ami-connector
 ```
 
 ## NodeJS versions 
@@ -121,7 +121,7 @@ For examples, please, see `./examples/*` or tests `./test/*`.
 Tests require [Mocha](https://mochajs.org/). 
 
 ```bash 
-mocha ./tests
+mocha ./test
 ``` 
 
 or with `npm` 
