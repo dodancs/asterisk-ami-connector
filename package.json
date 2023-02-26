@@ -1,6 +1,6 @@
 {
   "name": "@dodancs/asterisk-ami-connector",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "Asterisk AMI Connector for NodeJS \\w TypeScript support",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "move_libs": "mkdir -p lib && mv src/*.js lib/ && mv src/*.d.ts lib/",
+    "move_libs": "mkdir -p lib/errors && mv src/*.js lib/ && mv src/*.d.ts lib/ && mv src/errors/*.js lib/errors/ && mv src/errors/*.d.ts lib/errors/",
     "clean": "rm -rf lib/ && find . -maxdepth 3 -type f \\( -name '*.js' -o -name '*.d.ts' \\) -not -path './node_modules/*' -delete",
     "test": "mocha ./test",
     "coverage": "istanbul cover _mocha -- -R spec",
